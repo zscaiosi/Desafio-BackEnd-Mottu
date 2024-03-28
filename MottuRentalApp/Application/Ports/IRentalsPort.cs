@@ -6,8 +6,9 @@ namespace MottuRentalApp.Application.Ports
   {
     public Rental StartRental(Rental rental);
     public Rental? FindByUser(string userId);
+    public Task<Rental?> FindByUserAsync(string userId);
     public Rental? FindByVehiclePlate(string licensePlate);
-    public IList<RentalPeriod> FetchPeriods();
+    public Task<IList<RentalPeriod>> FetchPeriodsAsync();
     public IList<Rental> FetchOngoing();
   }
 }

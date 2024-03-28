@@ -11,14 +11,13 @@ namespace MottuRentalApp.Domain
       IList<Document> documents
     )
     {
-      Identifier = Guid.NewGuid().ToString();
       Name = name;
       BirthDate = birthDate;
       UserType = type;
       Documents = documents;
     }
 
-    public string Identifier { get; }
+    public string Identifier { get; set; } = Guid.NewGuid().ToString();
 		public string Name { get; }
     public string BirthDate { get; set; }
     public UserType UserType { get; set; }

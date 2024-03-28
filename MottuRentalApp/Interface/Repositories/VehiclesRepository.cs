@@ -64,7 +64,11 @@ namespace MottuRentalApp.Interface.Repositories
 
     public IList<Vehicle> FetchVehiclesExcept(IList<string> vehicleIds)
     {
-      throw new NotImplementedException();
+      var filter = Builders<Vehicles>.Filter.Nin(v => v.LicensePlate, vehicleIds);
+
+      var docs = this._vehicles.Find(filter).ToList();
+
+      return docs.Select(doc => new Vehicle(doc?.LicensePlate, doc?.Year, doc?.Model)).ToList();
     }
   }
 }
