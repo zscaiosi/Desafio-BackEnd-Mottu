@@ -6,8 +6,6 @@ namespace MottuRentalApp.Interface.Repositories.Collections
   public class Rentals
   {
     [BsonId]
-    [BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; }
     [BsonElement("identifier"), BsonRepresentation(BsonType.String)]
     public string? Identifier { get; set; }
     [BsonElement("userId"), BsonRepresentation(BsonType.String)]

@@ -4,14 +4,13 @@ namespace MottuRentalApp.Domain
   {
     public Rental(string userId, string vehicleId, string endTerm)
     {
-      Identifier = Guid.NewGuid().ToString();
       UserId = userId;
       VehicleId = vehicleId;
       StartTerm = DateTime.UtcNow.AddDays(1.00);
       EndTerm = DateTime.Parse(endTerm);
     }
 
-    public string Identifier { get; }
+    public string Identifier { get; set; } = Guid.NewGuid().ToString();
     public string UserId { get; }
     public string VehicleId { get; set; }
     public DateTime StartTerm { get; set; }
