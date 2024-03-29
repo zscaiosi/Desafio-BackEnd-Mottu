@@ -19,10 +19,16 @@ namespace MottuRentalApp.Tests
     [Fact]
     public void ShouldExecuteRegisterUserSuccessfully()
     {
+      string userId = Guid.NewGuid().ToString();
       IList<Document> validDocuments = [
         new Document() {
-          UserId = Guid.NewGuid().ToString(),
+          UserId = userId,
           Number = "721878912383",
+          Type = DocumentType.CNPJ
+        },
+        new Document() {
+          UserId = userId,
+          Number = "1738127931798",
           Type = DocumentType.CNPJ
         }
       ];
