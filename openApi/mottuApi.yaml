@@ -1,0 +1,308 @@
+openapi: 3.0.3
+info:
+  title: Mottu Renting Service
+  description: |-
+    This is a vehicles renting service which provide features for managing vehicles, drivers and develiveries.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: zscaio.si@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://localhost/api/v1
+tags:
+  - name: users
+    description: Drivers and admins
+  - name: vehicles
+    description: Motor bykes
+  - name: rentals
+    description: Bikes' rentals
+paths:
+  /users:
+    post:
+      tags:
+        - users
+      summary: Create users
+      operationId: postUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUserRequest'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostUserResponse'
+        '400':
+          description: 'Bad request'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+  /users/{id}/license:
+    patch:
+      tags:
+        - users
+      summary: Add license's pictures
+      operationId: postUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUserLicenseRequest'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostUserResponse'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+  /vehicles:
+    patch:
+      tags:
+        - vehicles
+      summary: Updates an existing vehicle
+      operationId: patchVehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+    delete:
+      tags:
+        - vehicles
+      summary: Deletes an existing vehicle
+      operationId: deleteVehicle
+      parameters:
+        - in: query
+          name: licensePlate
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Success'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+  /rentals/periods:
+    get:
+      tags:
+        - rentals
+      summary: Find available rental periods
+      operationId: getRentalPeriods
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/components/schemas/GetRentalPeriodsResponse'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+  /rentals:
+    post:
+      tags:
+        - rentals
+      summary: Starts a new rental
+      operationId: postRental
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRentalRequest'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostRentalResponse'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+    patch:
+      tags:
+        - rentals
+      summary: Updates an ongoing rental
+      operationId: patchRental
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRentalRequest'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchRentalResponse'
+        '400':
+          description: 'Bad request'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Server error'
+
+components:
+  schemas:
+    PostUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'User full name'
+        birthDate:
+          type: string
+        documents:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/UserDocument'
+    PostUserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: 'User full name'
+        birthDate:
+          type: string
+        documents:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/UserDocument'
+    UserDocument:
+      type: object
+      properties:
+        type:
+          type: string
+        number:
+          type: string
+        category:
+          type: string
+          default: null
+      required:
+        - type
+        - number
+    PatchUserLicenseRequest:
+      type: object
+      properties:
+        documentPicture:
+          type: string
+          format: byte
+          description: 'Base64 encoded file.'
+    Vehicle:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        year:
+          type: integer
+        model:
+          type: string
+    GetRentalPeriodsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        daysNumber:
+          type: integer
+        dailyPrice:
+          type: number
+        periodPrice:
+          type: number
+          format: double
+    PostRentalRequest:
+      type: object
+      properties:
+        periodId:
+          type: string
+    PostRentalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        startTerm:
+          type: string
+        endTerm:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, ACTIVE, DONE]
+    PatchRentalRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        endTerm:
+          type: string
+    PatchRentalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        startTerm:
+          type: string
+        endTerm:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, ACTIVE, DONE]
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
