@@ -111,5 +111,15 @@ namespace MottuRentalApp.Interface.Repositories
         Identifier = doc.Identifier!
       }).ToList();
     }
+
+    public async Task PatchTermAndFare(PatchRentalDto dto)
+    {
+      var filter = Builders<Rentals>.Filter.Eq(r => r.UserId, dto.UserId);
+
+      await this._rentals.UpdateOneAsync(
+        filter,
+        Builders<Rentals>.Update.Set(r => r.EndTerm, dto.EndTerm).Set(r => r.TotalFare, dto.TotalFare)
+      );
+    }
   }
 }
