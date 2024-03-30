@@ -67,12 +67,11 @@ namespace MottuRentalApp.Interface.Repositories
       }
     }
 
-    public async Task<IList<RentalPeriod>> FetchPeriodsAsync()
+    public IList<RentalPeriod> FetchPeriods()
     {
       var filter = Builders<RentalPeriods>.Filter.Gte(rp => rp.DaysNumber, 1);
 
-      var cursor = await this._rentalPeriods.FindAsync(filter);
-      var docs = await cursor.ToListAsync();
+      var docs = this._rentalPeriods.Find(filter).ToList();
 
       if (docs == null) {
         return [];
