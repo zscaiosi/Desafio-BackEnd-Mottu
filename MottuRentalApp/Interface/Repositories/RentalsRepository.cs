@@ -83,6 +83,22 @@ namespace MottuRentalApp.Interface.Repositories
       }
     }
 
+    public async Task<RentalPeriod?> FindPeriodAsync(string identifier)
+    {
+      var filter = Builders<RentalPeriods>.Filter.Gte(rp => rp.Identifier, identifier);
+
+      var cursor = await this._rentalPeriods.FindAsync(filter);
+      var docs = await cursor.ToListAsync();
+
+      if (docs == null) {
+        return null;
+      } else {
+        return docs
+          .Select(doc => new RentalPeriod(doc.Identifier!, doc.DaysNumber ?? 0, doc.DailyPrice ?? 0M)).First();
+      }
+
+    }
+
     public IList<Rental> FetchOngoing()
     {
       var pendingFilter = Builders<Rentals>.Filter.Eq(r => r.Status, RentalStatus.PENDING.ToString());

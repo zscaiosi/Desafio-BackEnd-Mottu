@@ -37,7 +37,7 @@ namespace MottuRentalApp.Application.Facades
         throw new Exception("NO_VEHICLES_AVAILABLE");
       }
 
-      return new Rental(userId, vehicles.FirstOrDefault()?.LicensePlate, endTerm);
+      return new Rental(userId, vehicles.FirstOrDefault()?.LicensePlate!, endTerm);
     }
   }
 }

@@ -11,7 +11,6 @@ namespace MottuRentalApp.Application.UseCases
     private readonly IRentalVehiclesFacade _rentalVehiclesFacade;
     private readonly IUsersPort _usersPort;
     private const string FEATURE_NAME = "RENT_VEHICLE";
-    private const decimal DAYS_ABOVE_FINE = 50.00M;
     public RentVehicleUseCase(
       IRentalsPort rentalsPort,
       IRentalVehiclesFacade rentalVehiclesFacade,
@@ -23,16 +22,33 @@ namespace MottuRentalApp.Application.UseCases
       this._usersPort = usersPort;
     }
 
-    public async void ExecuteAsync(string userId, string endTerm)
+    public async Task<Rental> ExecuteAsync(string userId, string periodId)
     {
       var checkUserLicensingTask = CheckUserLicensingAsync(userId);
       var checkUserTask = CheckUserAvailabilityAsync(userId);
-      var periodsTask = this._rentalsPort.FetchPeriodsAsync();
+      var periodTask = this._rentalsPort.FindPeriodAsync(periodId);
 
-      Task.WaitAll(checkUserLicensingTask, checkUserTask, periodsTask);
+      try
+      {
+        await Task.WhenAll(checkUserLicensingTask, checkUserTask, periodTask);
 
-      Rental rental = this._rentalVehiclesFacade.RentAvailableVehicle(userId, endTerm);
-      this._rentalsPort.StartRental(rental);
+        var selectedPeriod = periodTask.Result;
+        if (selectedPeriod is null) {
+          throw new InvalidRentException($"Could not find period {periodId} in {periodTask.AsyncState}", FEATURE_NAME);
+        }
+
+        Rental rental = this._rentalVehiclesFacade.RentAvailableVehicle(
+          userId,
+          DateTime.UtcNow.AddDays(1 + selectedPeriod.DaysNumber!).ToString("yyyy-MM-dd")
+        );
+        rental.TotalFare = selectedPeriod.PeriodPrice;
+
+        return this._rentalsPort.StartRental(rental);
+      }
+      catch(Exception exc)
+      {
+        throw new InvalidRentException(exc.Message, FEATURE_NAME);
+      }
     }
 
     private async Task CheckUserLicensingAsync(string userId)
@@ -48,24 +64,6 @@ namespace MottuRentalApp.Application.UseCases
       var rental = await this._rentalsPort.FindByUserAsync(userId);
       if (rental != null && (rental?.Status == RentalStatus.ACTIVE || rental?.Status == RentalStatus.PENDING)) {
         throw new InvalidRentException("USER_ALREADY_ON_RENT", FEATURE_NAME);
-      }
-    }
-
-    private decimal CalculateRentalFare(IList<RentalPeriod> periods, string endTerm)
-    {
-      double totalDays = DateTime.Parse(endTerm).Subtract(DateTime.UtcNow).TotalDays;
-
-      var selectedPeriod = periods.Where((period) => period.DaysNumber <= Math.Floor(totalDays)).LastOrDefault();
-      if (selectedPeriod == null) {
-        throw new InvalidRentException("NO_PERIOD", FEATURE_NAME);
-      }
-
-      if (totalDays == selectedPeriod.DaysNumber) {
-        return selectedPeriod.PeriodPrice;
-      } else {
-        var daysOffset = (decimal) totalDays - selectedPeriod.DaysNumber;
-
-        return daysOffset * DAYS_ABOVE_FINE;
       }
     }
   }
